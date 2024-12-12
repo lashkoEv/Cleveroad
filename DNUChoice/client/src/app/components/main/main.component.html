@@ -1,0 +1,38 @@
+<div *ngIf="getRole() === UserRoles.admin" class="main-container">
+  <div class="ripple-container">
+    <div pRipple class="box" (click)="redirect('/teachers')">Адміністратори і викладачі</div>
+    <div pRipple class="box" (click)="redirect('/students')">Студенти</div>
+    <div pRipple class="box" (click)="redirect('/groups')">Групи</div>
+    <div pRipple class="box" (click)="redirect('/disciplines')">Дисципліни</div>
+    <div pRipple class="box" (click)="redirect('/upload')">Завантажити дані з файлу</div>
+  </div>
+</div>
+
+<div *ngIf="getRole() === UserRoles.teacher" class="main-container">
+  <div class="ripple-container">
+    <div pRipple class="box" (click)="redirect('/students')">Студенти</div>
+    <div pRipple class="box" (click)="redirect('/groups')">Групи</div>
+    <div pRipple class="box" (click)="redirect('/disciplines')">Дисципліни</div>
+  </div>
+</div>
+
+<div *ngIf="getRole() === UserRoles.student" class="main-container">
+  <div class="ripple-container">
+    <div pRipple class="box" (click)="redirect('/profile')">Мій профіль</div>
+    <div pRipple class="box" (click)="redirect('/add-disciplines')">Обрати дисципліни</div>
+    <div pRipple class="box" (click)="redirect('/reselect-disciplines')">Перевибір</div>
+  </div>
+</div>
+
+<div *ngIf="!getRole()" class="container">
+  <div class="sub-container">
+    <img src="/logo.png" alt="Logo" class="image" />
+
+    <div class="title">Вітаємо в DNUChoice!</div>
+
+    <div class="subtitle">DNUChoice - застосунок для вибору дисциплін, розроблений спеціально для студентів та
+      викладачів
+      Дніпровського національного університету імені Олеся Гончара.
+    </div>
+  </div>
+</div>

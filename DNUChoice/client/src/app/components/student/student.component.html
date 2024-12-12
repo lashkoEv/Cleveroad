@@ -1,0 +1,253 @@
+<div *ngIf="getRole() === UserRoles.admin || getRole() === UserRoles.teacher">
+  <div class="user-list-container">
+    <div class="search-container mb-3">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          placeholder="Пошук"
+          (input)="applyFilter($event)"
+        />
+      </span>
+    </div>
+
+    <p-table
+      [value]="filteredUsers"
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="5"
+      [sortMode]="'multiple'"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      responsiveLayout="scroll"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="id">ID
+            <p-sortIcon field="id"></p-sortIcon>
+          </th>
+          <th pSortableColumn="name">Ім'я
+            <p-sortIcon field="name"></p-sortIcon>
+          </th>
+          <th pSortableColumn="email">Email
+            <p-sortIcon field="email"></p-sortIcon>
+          </th>
+          <th pSortableColumn="groupId">Група
+            <p-sortIcon field="groupId"></p-sortIcon>
+          </th>
+          <th style="width: 5rem"></th>
+          <th style="width: 5rem"></th>
+          <th style="width: 5rem"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.group ? user.group.title : 'Немає' }}</td>
+          <td>
+            <button
+              pButton
+              icon="pi pi-pencil"
+              class="p-button-warning"
+              (click)="editUser(user)"
+            ></button>
+          </td>
+          <td>
+            <button
+              pButton
+              icon="pi pi-trash"
+              class="p-button-danger"
+              (click)="confirmDelete($event, user.id)"
+            ></button>
+          </td>
+          <td>
+            <button
+              pButton
+              icon="pi pi-eye"
+              class="p-button-accent"
+              (click)="viewUserDetails(user)"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6">Дані не знайдені...</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <p-dialog
+    [(visible)]="displayUserDialog"
+    [header]="'Детальна інформація'"
+    [closable]="true"
+    [dismissableMask]="true"
+    [style]="{width: '800px'}"
+    [modal]="true"
+    [baseZIndex]="10000">
+
+    <ng-template pTemplate="content">
+      <div *ngIf="selectedUser">
+        <p><strong>ID:</strong> {{ selectedUser.id }}</p>
+        <p><strong>Ім'я:</strong> {{ selectedUser.name }}</p>
+        <p><strong>Email:</strong> {{ selectedUser.email }}</p>
+        <p><strong>Група:</strong> {{ selectedUser.group ? selectedUser.group.title : 'Немає' }}</p>
+        <p><strong>Дата створення запису:</strong> {{ selectedUser.createdAt | date:'dd.MM.yyyy HH:mm' }}</p>
+        <p><strong>Дата оновлення запису:</strong> {{ selectedUser.updatedAt | date:'dd.MM.yyyy HH:mm' }}</p>
+        <div *ngIf="disciplines.length">
+          <p-table
+            [value]="disciplines"
+            [paginator]="true"
+            [sortMode]="'multiple'"
+            [rows]="5">
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="code">Код
+                  <p-sortIcon field="code"></p-sortIcon>
+                </th>
+                <th pSortableColumn="title">Назва
+                  <p-sortIcon field="title"></p-sortIcon>
+                </th>
+                <th pSortableColumn="forSemester">Обрано на семестр
+                  <p-sortIcon field="forSemester"></p-sortIcon>
+                </th>
+                <th pSortableColumn="forYear">Обрано на курс
+                  <p-sortIcon field="forYear"></p-sortIcon>
+                </th>
+                <th pSortableColumn="isLocked">Статус
+                  <p-sortIcon field="isLocked"></p-sortIcon>
+                </th>
+                <th style="width: 5rem"></th>
+                <th style="width: 5rem"></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-discipline>
+              <tr>
+                <td>{{ discipline.code }}</td>
+                <td>{{ discipline.title }}</td>
+                <td>{{ discipline.forSemester }}</td>
+                <td>{{ discipline.forYear }}</td>
+                <td>{{ discipline.isLocked ? "Заблоковано" : "Доступно" }}</td>
+                <td>
+                  <p-button icon="pi pi-lock" [rounded]="true" [text]="true" severity="info"
+                            (click)="confirmLock($event, discipline.studentDisciplineId)"/>
+                </td>
+                <td>
+                  <p-button icon="pi pi-lock-open" [rounded]="true" [text]="true" severity="info"
+                            (click)="confirmUnlock($event, discipline.studentDisciplineId)"/>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+        <div *ngIf="!disciplines.length">
+          <p><strong>Інформація про дисципліни відсутня!</strong></p>
+        </div>
+      </div>
+      <div *ngIf="!selectedUser">
+        <p>Інформація відсутня.</p>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <p-dialog
+    [(visible)]="displayEditUserDialog"
+    [header]="'Редагування інформації про користувача'"
+    [closable]="true"
+    [modal]="true"
+    [style]="{width: '600px'}"
+    [baseZIndex]="10000">
+
+    <ng-template pTemplate="content">
+      <form [formGroup]="editUserForm">
+        <div class="p-fluid form-container">
+          <div class="p-field fullSize">
+            <p-dropdown
+              id="group"
+              [options]="groups"
+              optionLabel="title"
+              formControlName="group"
+              placeholder="Оберіть групу">
+            </p-dropdown>
+            <small *ngIf="editUserForm.get('group')?.invalid && editUserForm.get('group')?.touched" class="p-error">
+              Група не може бути пустою!
+            </small>
+          </div>
+
+          <div class="p-field fullSize">
+            <p-inputGroup>
+            <span class="p-inputgroup-addon">
+              <i class="pi pi-user"></i>
+            </span>
+              <input
+                id="nameUpdate"
+                type="text"
+                pInputText
+                formControlName="nameUpdate"
+                placeholder="Ім'я користувача"
+              />
+            </p-inputGroup>
+            <small *ngIf="editUserForm.get('nameUpdate')?.invalid && editUserForm.get('nameUpdate')?.touched"
+                   class="p-error">
+              Введіть ім'я користувача!
+            </small>
+          </div>
+
+          <div class="p-field fullSize">
+            <p-inputGroup>
+            <span class="p-inputgroup-addon">
+              <i class="pi pi-envelope"></i>
+            </span>
+              <input
+                id="emailUpdate"
+                type="email"
+                pInputText
+                formControlName="emailUpdate"
+                placeholder="Email"
+              />
+            </p-inputGroup>
+            <small *ngIf="editUserForm.get('emailUpdate')?.invalid && editUserForm.get('emailUpdate')?.touched"
+                   class="p-error">
+              Введіть коректний email!
+            </small>
+          </div>
+
+          <div class="p-field fullSize">
+            <p-inputGroup>
+            <span class="p-inputgroup-addon">
+              <i class="pi pi-key"></i>
+            </span>
+              <input
+                id="passwordUpdate"
+                type="password"
+                pInputText
+                formControlName="passwordUpdate"
+                placeholder="Пароль"
+              />
+            </p-inputGroup>
+          </div>
+        </div>
+      </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <button pButton label="Зберегти" icon="pi pi-check" (click)="saveEditedUser()"
+              [disabled]="editUserForm.invalid"></button>
+      <button pButton label="Скасувати" icon="pi pi-times" (click)="closeEditUserDialog()"
+              class="p-button-text"></button>
+    </ng-template>
+  </p-dialog>
+</div>
+
+<div *ngIf="getRole() !== UserRoles.admin && getRole() !== UserRoles.teacher" class="ban">
+  <i class="pi pi-lock ban-icon"></i>
+
+  <div class="ban-text">
+    У вас немає доступу до цієї сторінки!
+  </div>
+</div>

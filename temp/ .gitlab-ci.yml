@@ -1,0 +1,13 @@
+stages:
+  - merge_requests
+variables:
+  SONAR_LOGIN: "${SONAR_USER_TOKEN}"
+  SONAR_URL: "https://sonarqube.cleveroad.com"
+  SONAR_PROJECT: "pagato-backend"
+sonarqube-merge:
+  stage: merge_requests
+  script:
+    - sonar-scanner -Dsonar.projectKey=${SONAR_PROJECT} -Dsonar.sources=. -Dsonar.host.url=${SONAR_URL} -Dsonar.login=${SONAR_USER_TOKEN}
+  allow_failure: false
+  only:
+    - dev

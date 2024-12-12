@@ -1,0 +1,6 @@
+{
+  "USER_NOT_FOUND": "Utilisateur non trouvé",
+  "WRONG_CREDENTIALS": "Informations d'identification erronées",
+  "TOKEN_EXPIRED": "Jeton expiré",
+  "USER_ALREADY_EXIST": "L'utilisateur existe déjà"
+}

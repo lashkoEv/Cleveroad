@@ -1,0 +1,5 @@
+{
+  "EMAIL_REQUIRED": "电子邮件为必填项",
+  "PASSWORD_REQUIRED": "密码是必需的",
+  "TOKEN_REQUIRED": "需要令牌"
+}

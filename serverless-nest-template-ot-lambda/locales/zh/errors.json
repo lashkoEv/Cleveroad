@@ -1,0 +1,6 @@
+{
+    "USER_NOT_FOUND": "未找到用户",
+    "WRONG_CREDENTIALS": "凭证错误",
+    "TOKEN_EXPIRED": "令牌已过期",
+    "USER_ALREADY_EXIST": "用户已存在"
+}

@@ -1,0 +1,5 @@
+{
+  "EMAIL_REQUIRED": "L'e-mail est requis",
+  "PASSWORD_REQUIRED": "Mot de passe requis",
+  "TOKEN_REQUIRED": "Un jeton est requis"
+}
